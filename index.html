@@ -21,9 +21,8 @@
     .item:nth-child(2) .headline,
     .item:nth-child(3) .headline{font-size:clamp(36px,4.8vw,92px)}
     .empty{padding:48px 0;color:#777;font-size:24px}
-    .mask{position:fixed;left:0;right:0;height:18vh;pointer-events:none;z-index:5}
-    .mask-top{top:0;background:linear-gradient(180deg,var(--bg) 0%,rgba(2,2,2,.94) 34%,rgba(2,2,2,.52) 70%,rgba(2,2,2,0) 100%)}
-    .mask-bottom{bottom:0;background:linear-gradient(0deg,var(--bg) 0%,rgba(2,2,2,.94) 34%,rgba(2,2,2,.52) 70%,rgba(2,2,2,0) 100%)}
+    .mask{position:fixed;left:0;right:0;height:12vh;pointer-events:none;z-index:5}
+    .mask-bottom{bottom:0;background:linear-gradient(0deg,rgba(2,2,2,.36) 0%,rgba(2,2,2,.18) 34%,rgba(2,2,2,.08) 64%,rgba(2,2,2,0) 100%)}
     @media (max-width: 900px){
       .app{padding:8px 16px 24px}
       .item{padding:18px 0 24px}
@@ -31,7 +30,7 @@
       .item:first-child .headline{font-size:clamp(34px,10vw,64px)}
       .item:nth-child(2) .headline,
       .item:nth-child(3) .headline{font-size:clamp(30px,8.9vw,58px)}
-      .mask{height:12vh}
+      .mask{height:8vh}
     }
     @media (prefers-reduced-motion: reduce){
       .item,.headline{transition:none}
@@ -40,7 +39,6 @@
 </head>
 <body>
   <div class="viewport" id="viewport">
-    <div class="mask mask-top"></div>
     <div class="mask mask-bottom"></div>
     <div class="scroll-layer" id="scrollLayer">
       <div class="app">
@@ -139,7 +137,7 @@
         const res = await fetch(`./feed.json?t=${Date.now()}`, {cache:'no-store'});
         if (!res.ok) throw new Error(`HTTP ${res.status}`);
         const data = await res.json();
-        render(data);
+        render(Array.isArray(data) ? [...data].reverse() : data);
       } catch (e) {
         feedEl.innerHTML = '<div class="empty">真实 feed 暂不可用</div>';
       }
