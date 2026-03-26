@@ -6,59 +6,30 @@
   <title>律动情报屏</title>
   <style>
     :root{
-      --bg:#050505;--line:#141414;--text:#f6f6f2;--muted:#747474;--soft:#535353;
-      --high:#ff8a80;--medium:#d7c06a;--low:#7f9dbd;--macro:#8399c2;--energy:#b98b62;--geo:#cf7f79;--airdrop:#7ea36c;--etf:#78a97a;
+      --bg:#020202;--line:#101010;--text:#f7f7f2;
     }
     *{box-sizing:border-box} html,body{margin:0;padding:0;background:var(--bg);color:var(--text);font-family:-apple-system,BlinkMacSystemFont,"SF Pro Display","PingFang SC","Helvetica Neue",Arial,sans-serif}
     body{min-height:100vh}
-    .app{max-width:1680px;margin:0 auto;padding:0 28px 34px}
-    .topbar{position:sticky;top:0;z-index:10;background:linear-gradient(180deg,rgba(5,5,5,.96),rgba(5,5,5,.88));backdrop-filter:blur(8px);display:flex;justify-content:space-between;align-items:flex-start;gap:20px;padding:20px 0 10px}
-    .title{font-size:clamp(13px,1.2vw,18px);font-weight:600;letter-spacing:.18em;color:var(--soft);text-transform:uppercase}
-    .meta{display:flex;flex-direction:column;align-items:flex-end;gap:4px;text-align:right}
-    .clock{font-size:clamp(15px,1.4vw,22px);font-weight:600;color:#d8d8d3}
-    .updated{font-size:clamp(11px,1vw,14px);color:var(--soft)}
-    .feed{padding-top:14px}
-    .item{padding:24px 0 28px;border-bottom:1px solid var(--line)}
-    .row{display:flex;justify-content:space-between;align-items:flex-start;gap:20px}
-    .main{min-width:0;flex:1}
-    .badges{display:flex;flex-wrap:wrap;gap:10px;margin-bottom:10px}
-    .badge{display:inline-flex;align-items:center;color:var(--soft);font-size:11px;font-weight:600;letter-spacing:.08em;text-transform:uppercase}
-    .badge::before{content:"";width:5px;height:5px;border-radius:50%;background:currentColor;opacity:.8;margin-right:6px}
-    .badge.priority-high{color:var(--high)}
-    .badge.priority-medium{color:var(--medium)}
-    .badge.priority-low{color:var(--low)}
-    .badge.category-宏观{color:var(--macro)}
-    .badge.category-能源{color:var(--energy)}
-    .badge.category-地缘{color:var(--geo)}
-    .badge.category-空投{color:var(--airdrop)}
-    .badge.category-ETF{color:var(--etf)}
-    .time{flex:none;color:var(--muted);font-size:clamp(13px,1.1vw,16px);white-space:nowrap;padding-top:8px;min-width:110px;text-align:right;letter-spacing:.04em}
-    .headline{max-width:1180px;font-size:clamp(24px,3vw,42px);line-height:1.26;font-weight:650;letter-spacing:.005em}
-    .item:first-child{padding-top:8px}
-    .item:first-child .headline{font-size:clamp(30px,3.8vw,56px);line-height:1.18;font-weight:700;max-width:1320px}
-    .item:nth-child(n+2) .headline{opacity:.96}
-    .empty{padding:48px 12px;color:var(--muted);font-size:20px}
+    .app{width:min(100vw,2200px);margin:0 auto;padding:12px 34px 40px}
+    .feed{padding-top:0}
+    .item{padding:26px 0 34px;border-bottom:1px solid var(--line)}
+    .headline{width:100%;font-size:clamp(34px,4.5vw,88px);line-height:1.12;font-weight:700;letter-spacing:-.01em;word-break:break-word}
+    .item:first-child .headline{font-size:clamp(42px,5.6vw,108px);line-height:1.05}
+    .item:nth-child(2) .headline,
+    .item:nth-child(3) .headline{font-size:clamp(36px,4.8vw,92px)}
+    .empty{padding:48px 0;color:#777;font-size:24px}
     @media (max-width: 900px){
-      .app{padding:0 16px 22px}
-      .topbar{align-items:flex-start;flex-direction:column;padding:18px 0 10px}
-      .meta{align-items:flex-start;text-align:left}
-      .row{flex-direction:column;gap:8px}
-      .time{padding-top:0;min-width:auto;text-align:left}
-      .item{padding:18px 0 20px}
-      .badge{font-size:11px}
-      .headline{max-width:none}
+      .app{padding:8px 16px 24px}
+      .item{padding:18px 0 24px}
+      .headline{font-size:clamp(28px,8.4vw,54px);line-height:1.12}
+      .item:first-child .headline{font-size:clamp(34px,10vw,64px)}
+      .item:nth-child(2) .headline,
+      .item:nth-child(3) .headline{font-size:clamp(30px,8.9vw,58px)}
     }
   </style>
 </head>
 <body>
   <div class="app">
-    <header class="topbar">
-      <div class="title">律动情报屏</div>
-      <div class="meta">
-        <div class="clock" id="clock">--:--:--</div>
-        <div class="updated" id="updated">数据准备中…</div>
-      </div>
-    </header>
     <main class="feed" id="feed"></main>
   </div>
 
@@ -70,22 +41,8 @@
   </script>
   <script>
     const feedEl = document.getElementById('feed');
-    const updatedEl = document.getElementById('updated');
-    const clockEl = document.getElementById('clock');
-
-    function nowClock() {
-      const d = new Date();
-      clockEl.textContent = d.toLocaleString('zh-CN', {hour12:false, month:'2-digit', day:'2-digit', hour:'2-digit', minute:'2-digit', second:'2-digit'});
-    }
-
     function escapeHtml(text='') {
       return text.replace(/[&<>"']/g, s => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[s]));
-    }
-
-    function formatTime(v) {
-      const d = new Date(v);
-      if (Number.isNaN(d.getTime())) return v || '';
-      return d.toLocaleString('zh-CN', {hour12:false, month:'2-digit', day:'2-digit', hour:'2-digit', minute:'2-digit'});
     }
 
     function render(items) {
@@ -95,16 +52,7 @@
       }
       feedEl.innerHTML = items.map(item => `
         <article class="item">
-          <div class="row">
-            <div class="main">
-              <div class="badges">
-                ${item.category ? `<span class="badge category-${escapeHtml(item.category)}">${escapeHtml(item.category)}</span>` : ''}
-                ${item.priority ? `<span class="badge priority-${escapeHtml(item.priority)}">${escapeHtml(item.priority)}</span>` : ''}
-              </div>
-              <div class="headline">${escapeHtml(item.title || '')}</div>
-            </div>
-            <div class="time">${escapeHtml(formatTime(item.time))}</div>
-          </div>
+          <div class="headline">${escapeHtml(item.title || '')}</div>
         </article>
       `).join('');
     }
@@ -115,17 +63,13 @@
         if (!res.ok) throw new Error(`HTTP ${res.status}`);
         const data = await res.json();
         render(data);
-        updatedEl.textContent = `最近更新 ${new Date().toLocaleString('zh-CN', {hour12:false})}`;
       } catch (e) {
         const fallback = JSON.parse(document.getElementById('feed-fallback').textContent);
         render(fallback);
-        updatedEl.textContent = '本地预览模式';
       }
     }
 
-    nowClock();
     loadFeed();
-    setInterval(nowClock, 1000);
     setInterval(loadFeed, 30000);
   </script>
 </body>
