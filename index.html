@@ -49,12 +49,6 @@
     </div>
   </div>
 
-  <script id="feed-fallback" type="application/json">
-    [
-      {"id":"demo-1","title":"调查预计：美联储或仍计划在今年晚些时候下调利率","time":"2026-03-26T20:17:00+08:00","category":"宏观","priority":"high"},
-      {"id":"demo-2","title":"WTI原油日内大涨3.00%，布伦特原油日内涨超2.00%","time":"2026-03-26T16:46:00+08:00","category":"能源","priority":"medium"}
-    ]
-  </script>
   <script>
     const feedEl = document.getElementById('feed');
     const viewportEl = document.getElementById('viewport');
@@ -147,8 +141,7 @@
         const data = await res.json();
         render(data);
       } catch (e) {
-        const fallback = JSON.parse(document.getElementById('feed-fallback').textContent);
-        render(fallback);
+        feedEl.innerHTML = '<div class="empty">真实 feed 暂不可用</div>';
       }
     }
 
