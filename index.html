@@ -12,7 +12,9 @@
     html,body{height:100%;overflow:hidden}
     .viewport{position:fixed;inset:0;overflow:hidden;background:var(--bg)}
     .scroll-layer{will-change:transform}
-    .mobile .viewport{overflow-y:auto;-webkit-overflow-scrolling:touch;overscroll-behavior-y:contain}
+    .mobile html,.mobile body{height:auto;overflow-x:hidden;overflow-y:auto;-webkit-overflow-scrolling:touch}
+    .mobile body{min-height:100vh}
+    .mobile .viewport{position:relative;inset:auto;overflow:visible;min-height:100vh}
     .mobile .scroll-layer{will-change:auto;transform:none !important}
     .app{width:min(100vw,2440px);margin:0 auto;padding:20px 64px 36px}
     .feed{padding-top:0}
@@ -34,7 +36,6 @@
     .mask-bottom{bottom:0;background:linear-gradient(0deg,rgba(2,2,2,.36) 0%,rgba(2,2,2,.18) 34%,rgba(2,2,2,.08) 64%,rgba(2,2,2,0) 100%)}
     @media (max-width: 1024px){
       .mobile .mask{display:none}
-      .mobile html,.mobile body{overflow:auto}
       .mobile .item,.mobile .headline{transition:none !important}
     }
     @media (max-width: 900px){
