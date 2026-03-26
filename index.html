@@ -158,7 +158,7 @@
           node = createItem(item, entering);
         } else {
           const textEl = node.querySelector('.headline');
-          if (textEl && textEl.textContent !== (item.title || '')) textEl.textContent = item.title || '';
+          if (textEl && textEl.textContent !== (item.title || '')) textEl.innerHTML = formatHeadline(item.title || '');
         }
         fragment.appendChild(node);
       }
