@@ -1,0 +1,124 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
+  <title>律动情报屏</title>
+  <style>
+    :root{
+      --bg:#050505;--panel:#0d0d0d;--line:#1b1b1b;--text:#f5f5f5;--muted:#9a9a9a;
+      --high:#ff6b6b;--medium:#f7c948;--low:#6aa7ff;--macro:#8ab4ff;--energy:#f08c42;--geo:#ff7875;--airdrop:#73d13d;--etf:#69db7c;
+    }
+    *{box-sizing:border-box} html,body{margin:0;padding:0;background:var(--bg);color:var(--text);font-family:-apple-system,BlinkMacSystemFont,"SF Pro Display","PingFang SC","Helvetica Neue",Arial,sans-serif}
+    body{min-height:100vh}
+    .app{max-width:1800px;margin:0 auto;padding:0 20px 28px}
+    .topbar{position:sticky;top:0;z-index:10;background:linear-gradient(180deg,rgba(5,5,5,.98),rgba(5,5,5,.92));backdrop-filter:blur(10px);display:flex;justify-content:space-between;align-items:flex-end;gap:20px;padding:22px 0 18px;border-bottom:1px solid var(--line)}
+    .title{font-size:clamp(26px,4vw,56px);font-weight:800;letter-spacing:.03em}
+    .meta{display:flex;flex-direction:column;align-items:flex-end;gap:4px;text-align:right}
+    .clock{font-size:clamp(24px,3.2vw,52px);font-weight:700}
+    .updated{font-size:clamp(12px,1.4vw,18px);color:var(--muted)}
+    .feed{padding-top:18px;display:grid;gap:16px}
+    .card{background:var(--panel);border:1px solid var(--line);border-radius:20px;padding:20px 22px 22px;box-shadow:0 0 0 1px rgba(255,255,255,.01) inset}
+    .row{display:flex;justify-content:space-between;align-items:flex-start;gap:16px;margin-bottom:12px}
+    .badges{display:flex;flex-wrap:wrap;gap:8px}
+    .badge{display:inline-flex;align-items:center;height:30px;padding:0 12px;border-radius:999px;background:#151515;color:#d8d8d8;font-size:13px;font-weight:700;letter-spacing:.02em}
+    .badge.priority-high{color:var(--high);border:1px solid rgba(255,107,107,.28)}
+    .badge.priority-medium{color:var(--medium);border:1px solid rgba(247,201,72,.28)}
+    .badge.priority-low{color:var(--low);border:1px solid rgba(106,167,255,.28)}
+    .badge.category-宏观{color:var(--macro)}
+    .badge.category-能源{color:var(--energy)}
+    .badge.category-地缘{color:var(--geo)}
+    .badge.category-空投{color:var(--airdrop)}
+    .badge.category-ETF{color:var(--etf)}
+    .time{flex:none;color:var(--muted);font-size:clamp(14px,1.5vw,20px);white-space:nowrap;padding-top:3px}
+    .headline{font-size:clamp(26px,3.6vw,54px);line-height:1.2;font-weight:800;letter-spacing:.01em}
+    .empty{padding:48px 12px;color:var(--muted);font-size:20px}
+    @media (max-width: 900px){
+      .app{padding:0 14px 20px}
+      .topbar{align-items:flex-start;flex-direction:column;padding:18px 0 14px}
+      .meta{align-items:flex-start;text-align:left}
+      .row{flex-direction:column;gap:10px}
+      .time{padding-top:0}
+      .card{padding:18px}
+      .badge{height:28px;font-size:12px}
+    }
+  </style>
+</head>
+<body>
+  <div class="app">
+    <header class="topbar">
+      <div class="title">律动情报屏</div>
+      <div class="meta">
+        <div class="clock" id="clock">--:--:--</div>
+        <div class="updated" id="updated">数据准备中…</div>
+      </div>
+    </header>
+    <main class="feed" id="feed"></main>
+  </div>
+
+  <script id="feed-fallback" type="application/json">
+    [
+      {"id":"demo-1","title":"调查预计：美联储或仍计划在今年晚些时候下调利率","time":"2026-03-26T20:17:00+08:00","category":"宏观","priority":"high"},
+      {"id":"demo-2","title":"WTI原油日内大涨3.00%，布伦特原油日内涨超2.00%","time":"2026-03-26T16:46:00+08:00","category":"能源","priority":"medium"}
+    ]
+  </script>
+  <script>
+    const feedEl = document.getElementById('feed');
+    const updatedEl = document.getElementById('updated');
+    const clockEl = document.getElementById('clock');
+
+    function nowClock() {
+      const d = new Date();
+      clockEl.textContent = d.toLocaleString('zh-CN', {hour12:false, month:'2-digit', day:'2-digit', hour:'2-digit', minute:'2-digit', second:'2-digit'});
+    }
+
+    function escapeHtml(text='') {
+      return text.replace(/[&<>"']/g, s => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[s]));
+    }
+
+    function formatTime(v) {
+      const d = new Date(v);
+      if (Number.isNaN(d.getTime())) return v || '';
+      return d.toLocaleString('zh-CN', {hour12:false, month:'2-digit', day:'2-digit', hour:'2-digit', minute:'2-digit'});
+    }
+
+    function render(items) {
+      if (!Array.isArray(items) || !items.length) {
+        feedEl.innerHTML = '<div class="empty">暂无情报</div>';
+        return;
+      }
+      feedEl.innerHTML = items.map(item => `
+        <article class="card">
+          <div class="row">
+            <div class="badges">
+              ${item.category ? `<span class="badge category-${escapeHtml(item.category)}">${escapeHtml(item.category)}</span>` : ''}
+              ${item.priority ? `<span class="badge priority-${escapeHtml(item.priority)}">${escapeHtml(item.priority)}</span>` : ''}
+            </div>
+            <div class="time">${escapeHtml(formatTime(item.time))}</div>
+          </div>
+          <div class="headline">${escapeHtml(item.title || '')}</div>
+        </article>
+      `).join('');
+    }
+
+    async function loadFeed() {
+      try {
+        const res = await fetch(`./feed.json?t=${Date.now()}`, {cache:'no-store'});
+        if (!res.ok) throw new Error(`HTTP ${res.status}`);
+        const data = await res.json();
+        render(data);
+        updatedEl.textContent = `最近更新 ${new Date().toLocaleString('zh-CN', {hour12:false})}`;
+      } catch (e) {
+        const fallback = JSON.parse(document.getElementById('feed-fallback').textContent);
+        render(fallback);
+        updatedEl.textContent = '本地预览模式';
+      }
+    }
+
+    nowClock();
+    loadFeed();
+    setInterval(nowClock, 1000);
+    setInterval(loadFeed, 30000);
+  </script>
+</body>
+</html>
