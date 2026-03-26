@@ -12,8 +12,8 @@
     html,body{height:100%;overflow:hidden}
     .viewport{position:fixed;inset:0;overflow:hidden;background:var(--bg)}
     .scroll-layer{will-change:transform}
-    .mobile html,.mobile body{height:auto;overflow-x:hidden;overflow-y:auto;-webkit-overflow-scrolling:touch}
-    .mobile body{min-height:100vh}
+    html.mobile, html.mobile body{height:auto;overflow-x:hidden;overflow-y:auto;-webkit-overflow-scrolling:touch}
+    html.mobile body{min-height:100vh}
     .mobile .viewport{position:relative;inset:auto;overflow:visible;min-height:100vh}
     .mobile .scroll-layer{will-change:auto;transform:none !important}
     .app{width:min(100vw,2440px);margin:0 auto;padding:20px 64px 36px}
@@ -31,6 +31,10 @@
     .item:nth-child(2) .headline{max-width:22.6ch;font-size:clamp(33px,3.9vw,68px);line-height:1.14;font-weight:560;color:rgba(247,247,242,.885);letter-spacing:-.018em;text-wrap:balance}
     .item:nth-child(n+3):nth-child(-n+6) .headline{max-width:23.7ch;font-size:clamp(29px,3.35vw,56px);line-height:1.18;font-weight:525;color:rgba(247,247,242,.815);text-wrap:pretty}
     .item:nth-child(n+7) .headline{max-width:24ch;font-size:clamp(26px,3.08vw,50px);line-height:1.19;font-weight:505;color:rgba(247,247,242,.755);text-wrap:pretty}
+    .item:nth-child(n+7) .meta{color:rgba(247,247,242,.24)}
+    .meta{margin-top:7px;font-size:clamp(11px,1vw,14px);line-height:1.2;font-weight:460;letter-spacing:.01em;color:rgba(247,247,242,.26)}
+    .item:first-child .meta{color:rgba(247,247,242,.3)}
+    .item:nth-child(2) .meta{color:rgba(247,247,242,.28)}
     .empty{padding:48px 0;color:#777;font-size:24px}
     .mask{position:fixed;left:0;right:0;height:12vh;pointer-events:none;z-index:5}
     .mask-bottom{bottom:0;background:linear-gradient(0deg,rgba(2,2,2,.36) 0%,rgba(2,2,2,.18) 34%,rgba(2,2,2,.08) 64%,rgba(2,2,2,0) 100%)}
@@ -50,6 +54,7 @@
       .item:nth-child(2) .headline{max-width:100%;font-size:clamp(29px,7.9vw,48px);line-height:1.12;font-weight:575;color:rgba(247,247,242,.89)}
       .item:nth-child(n+3):nth-child(-n+6) .headline{max-width:100%;font-size:clamp(25px,7vw,42px);line-height:1.16;font-weight:520;color:rgba(247,247,242,.81)}
       .item:nth-child(n+7) .headline{max-width:100%;font-size:clamp(22px,6.4vw,36px);line-height:1.18;font-weight:500;color:rgba(247,247,242,.72)}
+      .meta{margin-top:6px;font-size:11px}
       .mask{height:8vh}
     }
     @media (prefers-reduced-motion: reduce){
@@ -102,7 +107,21 @@
     }
 
     function buildSignature(items) {
-      return Array.isArray(items) ? items.map(item => `${item.id}::${item.title || ""}`).join("\n") : "";
+      return Array.isArray(items) ? items.map(item => `${item.id}::${item.title || ""}::${item.ts || ""}`).join("\n") : "";
+    }
+
+    function formatRelativeTime(ts) {
+      if (!ts) return '';
+      const date = new Date(ts);
+      if (Number.isNaN(date.getTime())) return '';
+      const diff = Math.max(0, Date.now() - date.getTime());
+      const mins = Math.floor(diff / 60000);
+      if (mins < 1) return '刚刚';
+      if (mins < 60) return `${mins} 分钟前`;
+      const hours = Math.floor(mins / 60);
+      if (hours < 24) return `${hours} 小时前`;
+      const days = Math.floor(hours / 24);
+      return `${days} 天前`;
     }
 
     function updateVisuals() {
@@ -132,7 +151,7 @@
       const article = document.createElement('article');
       article.className = 'item';
       article.dataset.id = item.id;
-      article.innerHTML = `<div class="headline">${formatHeadline(item.title || '')}</div>`;
+      article.innerHTML = `<div class="headline">${formatHeadline(item.title || '')}</div><div class="meta">${formatRelativeTime(item.ts)}</div>`;
       if (entering && !reduceMotion) {
         article.classList.add('entering');
         requestAnimationFrame(() => article.classList.remove('entering'));
@@ -160,6 +179,8 @@
         } else {
           const textEl = node.querySelector('.headline');
           if (textEl && textEl.textContent !== (item.title || '')) textEl.innerHTML = formatHeadline(item.title || '');
+          const metaEl = node.querySelector('.meta');
+          if (metaEl) metaEl.textContent = formatRelativeTime(item.ts);
         }
         fragment.appendChild(node);
       }
