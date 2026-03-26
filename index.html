@@ -12,6 +12,8 @@
     html,body{height:100%;overflow:hidden}
     .viewport{position:fixed;inset:0;overflow:hidden;background:var(--bg)}
     .scroll-layer{will-change:transform}
+    .mobile .viewport{overflow-y:auto;-webkit-overflow-scrolling:touch;overscroll-behavior-y:contain}
+    .mobile .scroll-layer{will-change:auto;transform:none !important}
     .app{width:min(100vw,2400px);margin:0 auto;padding:18px 42px 44px}
     .feed{padding-top:0}
     .item{padding:18px 0 22px;border-bottom:1px solid var(--line);transform-origin:center center;opacity:1;transform:translate3d(0,0,0) scale(1)}
@@ -27,6 +29,11 @@
     .empty{padding:48px 0;color:#777;font-size:24px}
     .mask{position:fixed;left:0;right:0;height:12vh;pointer-events:none;z-index:5}
     .mask-bottom{bottom:0;background:linear-gradient(0deg,rgba(2,2,2,.36) 0%,rgba(2,2,2,.18) 34%,rgba(2,2,2,.08) 64%,rgba(2,2,2,0) 100%)}
+    @media (max-width: 1024px){
+      .mobile .mask{display:none}
+      .mobile html,.mobile body{overflow:auto}
+      .mobile .item,.mobile .headline{transition:none !important}
+    }
     @media (max-width: 900px){
       .app{padding:10px 18px 26px}
       .item{padding:14px 0 18px}
@@ -59,11 +66,14 @@
     const viewportEl = document.getElementById('viewport');
     const scrollLayerEl = document.getElementById('scrollLayer');
     const reduceMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+    const isMobile = window.matchMedia('(pointer: coarse), (max-width: 1024px)').matches;
+    if (isMobile) document.documentElement.classList.add('mobile');
     let targetY = 0;
     let currentY = 0;
     let firstRender = true;
     let touchStartY = null;
     let previousFeedIds = [];
+    let lastRenderSignature = "";
 
     function escapeHtml(text='') {
       return text.replace(/[&<>"']/g, s => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[s]));
@@ -74,7 +84,12 @@
       return Math.max(minY, Math.min(0, value));
     }
 
+    function buildSignature(items) {
+      return Array.isArray(items) ? items.map(item => `${item.id}::${item.title || ""}`).join("\n") : "";
+    }
+
     function updateVisuals() {
+      if (isMobile) return;
       const center = window.innerHeight / 2;
       feedEl.querySelectorAll('.item').forEach((item) => {
         const rect = item.getBoundingClientRect();
@@ -88,6 +103,7 @@
     }
 
     function animate() {
+      if (isMobile) return;
       currentY = reduceMotion ? targetY : currentY + (targetY - currentY) * 0.12;
       if (Math.abs(targetY - currentY) < 0.1) currentY = targetY;
       scrollLayerEl.style.transform = `translate3d(0, ${currentY}px, 0)`;
@@ -112,6 +128,9 @@
         feedEl.innerHTML = '<div class="empty">暂无情报</div>';
         return;
       }
+      const signature = buildSignature(items);
+      if (signature === lastRenderSignature) return;
+      lastRenderSignature = signature;
       const existing = new Map([...feedEl.querySelectorAll('.item')].map(node => [node.dataset.id, node]));
       const nextIds = items.map(item => String(item.id));
       const fragment = document.createDocumentFragment();
@@ -131,9 +150,9 @@
       previousFeedIds = nextIds;
       if (firstRender) {
         targetY = currentY = 0;
-        scrollLayerEl.style.transform = 'translate3d(0,0,0)';
+        if (!isMobile) scrollLayerEl.style.transform = 'translate3d(0,0,0)';
         firstRender = false;
-      } else {
+      } else if (!isMobile) {
         targetY = clampScroll(targetY);
       }
       updateVisuals();
@@ -150,34 +169,36 @@
       }
     }
 
-    viewportEl.addEventListener('wheel', (e) => {
-      e.preventDefault();
-      targetY = clampScroll(targetY - e.deltaY);
-    }, {passive:false});
+    if (!isMobile) {
+      viewportEl.addEventListener('wheel', (e) => {
+        e.preventDefault();
+        targetY = clampScroll(targetY - e.deltaY);
+      }, {passive:false});
 
-    viewportEl.addEventListener('touchstart', (e) => {
-      touchStartY = e.touches[0].clientY;
-    }, {passive:true});
+      viewportEl.addEventListener('touchstart', (e) => {
+        touchStartY = e.touches[0].clientY;
+      }, {passive:true});
 
-    viewportEl.addEventListener('touchmove', (e) => {
-      if (touchStartY == null) return;
-      const y = e.touches[0].clientY;
-      const delta = y - touchStartY;
-      touchStartY = y;
-      targetY = clampScroll(targetY + delta);
-    }, {passive:true});
+      viewportEl.addEventListener('touchmove', (e) => {
+        if (touchStartY == null) return;
+        const y = e.touches[0].clientY;
+        const delta = y - touchStartY;
+        touchStartY = y;
+        targetY = clampScroll(targetY + delta);
+      }, {passive:true});
 
-    viewportEl.addEventListener('touchend', () => {
-      touchStartY = null;
-    }, {passive:true});
+      viewportEl.addEventListener('touchend', () => {
+        touchStartY = null;
+      }, {passive:true});
 
-    window.addEventListener('resize', () => {
-      targetY = clampScroll(targetY);
-      currentY = clampScroll(currentY);
-      updateVisuals();
-    });
+      window.addEventListener('resize', () => {
+        targetY = clampScroll(targetY);
+        currentY = clampScroll(currentY);
+        updateVisuals();
+      });
 
-    requestAnimationFrame(animate);
+      requestAnimationFrame(animate);
+    }
     loadFeed();
     setInterval(loadFeed, 30000);
   </script>
