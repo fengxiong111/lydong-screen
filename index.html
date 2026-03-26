@@ -9,15 +9,21 @@
       --bg:#020202;--line:#101010;--text:#f7f7f2;
     }
     *{box-sizing:border-box} html,body{margin:0;padding:0;background:var(--bg);color:var(--text);font-family:-apple-system,BlinkMacSystemFont,"SF Pro Display","PingFang SC","Helvetica Neue",Arial,sans-serif}
-    body{min-height:100vh}
-    .app{width:min(100vw,2200px);margin:0 auto;padding:12px 34px 40px}
+    html,body{height:100%;overflow:hidden}
+    .viewport{position:fixed;inset:0;overflow:hidden;background:var(--bg)}
+    .scroll-layer{will-change:transform}
+    .app{width:min(100vw,2400px);margin:0 auto;padding:12px 34px 40px}
     .feed{padding-top:0}
-    .item{padding:26px 0 34px;border-bottom:1px solid var(--line)}
-    .headline{width:100%;font-size:clamp(34px,4.5vw,88px);line-height:1.12;font-weight:700;letter-spacing:-.01em;word-break:break-word}
+    .item{padding:26px 0 34px;border-bottom:1px solid var(--line);transform-origin:center center;opacity:1;transform:translate3d(0,0,0) scale(1)}
+    .item.entering{opacity:0;transform:translate3d(0,18px,0) scale(.995)}
+    .headline{width:100%;font-size:clamp(34px,4.5vw,88px);line-height:1.12;font-weight:700;letter-spacing:-.01em;word-break:break-word;transition:opacity .18s linear, transform .18s linear}
     .item:first-child .headline{font-size:clamp(42px,5.6vw,108px);line-height:1.05}
     .item:nth-child(2) .headline,
     .item:nth-child(3) .headline{font-size:clamp(36px,4.8vw,92px)}
     .empty{padding:48px 0;color:#777;font-size:24px}
+    .mask{position:fixed;left:0;right:0;height:18vh;pointer-events:none;z-index:5}
+    .mask-top{top:0;background:linear-gradient(180deg,var(--bg) 0%,rgba(2,2,2,.94) 34%,rgba(2,2,2,.52) 70%,rgba(2,2,2,0) 100%)}
+    .mask-bottom{bottom:0;background:linear-gradient(0deg,var(--bg) 0%,rgba(2,2,2,.94) 34%,rgba(2,2,2,.52) 70%,rgba(2,2,2,0) 100%)}
     @media (max-width: 900px){
       .app{padding:8px 16px 24px}
       .item{padding:18px 0 24px}
@@ -25,12 +31,22 @@
       .item:first-child .headline{font-size:clamp(34px,10vw,64px)}
       .item:nth-child(2) .headline,
       .item:nth-child(3) .headline{font-size:clamp(30px,8.9vw,58px)}
+      .mask{height:12vh}
+    }
+    @media (prefers-reduced-motion: reduce){
+      .item,.headline{transition:none}
     }
   </style>
 </head>
 <body>
-  <div class="app">
-    <main class="feed" id="feed"></main>
+  <div class="viewport" id="viewport">
+    <div class="mask mask-top"></div>
+    <div class="mask mask-bottom"></div>
+    <div class="scroll-layer" id="scrollLayer">
+      <div class="app">
+        <main class="feed" id="feed"></main>
+      </div>
+    </div>
   </div>
 
   <script id="feed-fallback" type="application/json">
@@ -41,8 +57,55 @@
   </script>
   <script>
     const feedEl = document.getElementById('feed');
+    const viewportEl = document.getElementById('viewport');
+    const scrollLayerEl = document.getElementById('scrollLayer');
+    const reduceMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+    let targetY = 0;
+    let currentY = 0;
+    let firstRender = true;
+    let touchStartY = null;
+    let previousFeedIds = [];
+
     function escapeHtml(text='') {
       return text.replace(/[&<>"']/g, s => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[s]));
+    }
+
+    function clampScroll(value) {
+      const minY = Math.min(0, viewportEl.clientHeight - scrollLayerEl.scrollHeight);
+      return Math.max(minY, Math.min(0, value));
+    }
+
+    function updateVisuals() {
+      const center = window.innerHeight / 2;
+      feedEl.querySelectorAll('.item').forEach((item) => {
+        const rect = item.getBoundingClientRect();
+        const itemCenter = rect.top + rect.height / 2;
+        const distance = Math.min(1, Math.abs(itemCenter - center) / (window.innerHeight * 0.65));
+        const opacity = reduceMotion ? 1 : 1 - distance * 0.28;
+        const scale = reduceMotion ? 1 : 1 - distance * 0.018;
+        item.style.opacity = opacity.toFixed(3);
+        item.style.transform = `translate3d(0,0,0) scale(${scale.toFixed(4)})`;
+      });
+    }
+
+    function animate() {
+      currentY = reduceMotion ? targetY : currentY + (targetY - currentY) * 0.12;
+      if (Math.abs(targetY - currentY) < 0.1) currentY = targetY;
+      scrollLayerEl.style.transform = `translate3d(0, ${currentY}px, 0)`;
+      updateVisuals();
+      requestAnimationFrame(animate);
+    }
+
+    function createItem(item, entering) {
+      const article = document.createElement('article');
+      article.className = 'item';
+      article.dataset.id = item.id;
+      article.innerHTML = `<div class="headline">${escapeHtml(item.title || '')}</div>`;
+      if (entering && !reduceMotion) {
+        article.classList.add('entering');
+        requestAnimationFrame(() => article.classList.remove('entering'));
+      }
+      return article;
     }
 
     function render(items) {
@@ -50,11 +113,31 @@
         feedEl.innerHTML = '<div class="empty">暂无情报</div>';
         return;
       }
-      feedEl.innerHTML = items.map(item => `
-        <article class="item">
-          <div class="headline">${escapeHtml(item.title || '')}</div>
-        </article>
-      `).join('');
+      const existing = new Map([...feedEl.querySelectorAll('.item')].map(node => [node.dataset.id, node]));
+      const nextIds = items.map(item => String(item.id));
+      const fragment = document.createDocumentFragment();
+      for (const item of items) {
+        const id = String(item.id);
+        let node = existing.get(id);
+        if (!node) {
+          const entering = !firstRender && !previousFeedIds.includes(id);
+          node = createItem(item, entering);
+        } else {
+          const textEl = node.querySelector('.headline');
+          if (textEl && textEl.textContent !== (item.title || '')) textEl.textContent = item.title || '';
+        }
+        fragment.appendChild(node);
+      }
+      feedEl.replaceChildren(fragment);
+      previousFeedIds = nextIds;
+      if (firstRender) {
+        targetY = currentY = 0;
+        scrollLayerEl.style.transform = 'translate3d(0,0,0)';
+        firstRender = false;
+      } else {
+        targetY = clampScroll(targetY);
+      }
+      updateVisuals();
     }
 
     async function loadFeed() {
@@ -69,6 +152,34 @@
       }
     }
 
+    viewportEl.addEventListener('wheel', (e) => {
+      e.preventDefault();
+      targetY = clampScroll(targetY - e.deltaY);
+    }, {passive:false});
+
+    viewportEl.addEventListener('touchstart', (e) => {
+      touchStartY = e.touches[0].clientY;
+    }, {passive:true});
+
+    viewportEl.addEventListener('touchmove', (e) => {
+      if (touchStartY == null) return;
+      const y = e.touches[0].clientY;
+      const delta = y - touchStartY;
+      touchStartY = y;
+      targetY = clampScroll(targetY + delta);
+    }, {passive:true});
+
+    viewportEl.addEventListener('touchend', () => {
+      touchStartY = null;
+    }, {passive:true});
+
+    window.addEventListener('resize', () => {
+      targetY = clampScroll(targetY);
+      currentY = clampScroll(currentY);
+      updateVisuals();
+    });
+
+    requestAnimationFrame(animate);
     loadFeed();
     setInterval(loadFeed, 30000);
   </script>
