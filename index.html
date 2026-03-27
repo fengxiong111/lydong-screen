@@ -21,7 +21,6 @@
     .item{padding:16px 0 18px;border-bottom:1px solid transparent;transform-origin:center center;opacity:1;transform:translate3d(0,0,0) scale(1)}
     .item + .item{margin-top:2px}
     .item:first-child{padding-top:22px;padding-bottom:42px;margin-bottom:16px;border-bottom-color:rgba(255,255,255,.018)}
-    .item:first-child::before{content:"● STRUCTURE FORMING";display:block;margin:0 0 12px;font-size:clamp(11px,.9vw,13px);line-height:1.1;font-weight:540;letter-spacing:.11em;color:rgba(247,247,242,.44)}
     .item:nth-child(2){padding-top:24px;padding-bottom:28px;margin-bottom:14px;border-bottom-color:rgba(255,255,255,.014)}
     .item:nth-child(n+3):nth-child(-n+6){padding-top:10px;padding-bottom:10px}
     .item:nth-child(n+7){padding-top:11px;padding-bottom:13px}
@@ -32,6 +31,11 @@
     .item:nth-child(n+3):nth-child(-n+6) .headline{max-width:24.8ch;font-size:clamp(29px,3.22vw,54px);line-height:1.19;font-weight:520;color:rgba(247,247,242,.83);text-wrap:pretty}
     .item:nth-child(n+7) .headline{max-width:25.1ch;font-size:clamp(26px,3vw,48px);line-height:1.2;font-weight:505;color:rgba(247,247,242,.79);text-wrap:pretty}
     .item:nth-child(n+7) .meta{color:rgba(247,247,242,.38)}
+.signal{margin:0 0 12px;font-size:clamp(11px,.9vw,13px);line-height:1.1;font-weight:540;letter-spacing:.11em;color:rgba(247,247,242,.44)}
+    .item:not([data-state="structured"]) .signal{display:none}
+    .item:nth-child(2) .signal{color:rgba(247,247,242,.4)}
+    .item:nth-child(n+3) .signal{color:rgba(247,247,242,.36)}
+    .item:nth-child(n+7) .signal{color:rgba(247,247,242,.33)}
     .meta{margin-top:8px;font-size:clamp(12px,1.02vw,14px);line-height:1.22;font-weight:475;letter-spacing:.012em;color:rgba(247,247,242,.48)}
     .item:first-child .meta{color:rgba(247,247,242,.5)}
     .item:nth-child(2) .meta{color:rgba(247,247,242,.49)}
@@ -46,7 +50,6 @@
       .app{padding:20px 82px 32px}
       .item{padding:13px 0 15px}
       .item:first-child{padding-top:14px;padding-bottom:28px;margin-bottom:10px}
-      .item:first-child::before{margin:0 0 10px;font-size:12px;color:rgba(247,247,242,.46)}
       .item:nth-child(2){padding-top:19px;padding-bottom:21px;margin-bottom:11px}
       .item:nth-child(n+3):nth-child(-n+6){padding-top:10px;padding-bottom:10px}
       .item:nth-child(n+7){padding-top:10px;padding-bottom:11px}
@@ -59,12 +62,12 @@
       .item:first-child .meta{color:rgba(247,247,242,.52)}
       .item:nth-child(2) .meta{color:rgba(247,247,242,.5)}
       .item:nth-child(n+7) .meta{color:rgba(247,247,242,.41)}
+      .signal{margin:0 0 10px;font-size:12px;color:rgba(247,247,242,.46)}
     }
     @media (pointer: coarse) and (min-width: 820px) and (orientation: portrait){
       .app{padding:18px 44px 32px}
       .item{padding:12px 0 14px}
       .item:first-child{padding-top:10px;padding-bottom:24px;margin-bottom:10px}
-      .item:first-child::before{margin:0 0 10px;font-size:12px;color:rgba(247,247,242,.45)}
       .item:nth-child(2){padding-top:16px;padding-bottom:19px;margin-bottom:10px}
       .item:nth-child(n+3):nth-child(-n+6){padding-top:10px;padding-bottom:10px}
       .item:nth-child(n+7){padding-top:10px;padding-bottom:11px}
@@ -77,12 +80,12 @@
       .item:first-child .meta{color:rgba(247,247,242,.52)}
       .item:nth-child(2) .meta{color:rgba(247,247,242,.5)}
       .item:nth-child(n+7) .meta{color:rgba(247,247,242,.41)}
+      .signal{margin:0 0 10px;font-size:12px;color:rgba(247,247,242,.45)}
     }
     @media (max-width: 900px){
       .app{padding:12px 26px 28px}
       .item{padding:14px 0 17px}
       .item:first-child{padding-top:8px;padding-bottom:26px;margin-bottom:10px}
-      .item:first-child::before{margin:0 0 8px;font-size:11px;letter-spacing:.09em;color:rgba(247,247,242,.42)}
       .item:nth-child(2){padding-top:16px;padding-bottom:22px;margin-bottom:10px}
       .item:nth-child(n+3):nth-child(-n+6){padding-top:10px;padding-bottom:11px}
       .item:nth-child(n+7){padding-top:9px;padding-bottom:11px}
@@ -92,6 +95,7 @@
       .item:nth-child(n+3):nth-child(-n+6) .headline{max-width:100%;font-size:clamp(25px,6.9vw,41px);line-height:1.18;font-weight:520;color:rgba(247,247,242,.83)}
       .item:nth-child(n+7) .headline{max-width:100%;font-size:clamp(22px,6.32vw,36px);line-height:1.19;font-weight:500;color:rgba(247,247,242,.79)}
       .meta{margin-top:6px;font-size:12px;color:rgba(247,247,242,.44)}
+      .signal{margin:0 0 8px;font-size:11px;letter-spacing:.09em;color:rgba(247,247,242,.42)}
       .mask{height:8vh}
     }
     @media (prefers-reduced-motion: reduce){
@@ -122,6 +126,8 @@
     let touchStartY = null;
     let previousFeedIds = [];
     let lastRenderSignature = "";
+    const STRUCTURED_RE = /伊朗|以色列|美国|白宫|司法部|霍尔木兹|原油|油价|增兵|袭击|停火|制裁|调查|美联储|SEC|ETF期权|战争|军事基地|关税|部署|关岛|中东/i;
+
 
     function escapeHtml(text='') {
       return text.replace(/[&<>"']/g, s => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[s]));
@@ -134,6 +140,10 @@
 
     function buildSignature(items) {
       return Array.isArray(items) ? items.map(item => `${item.id}::${item.title || ""}::${item.ts || ""}`).join("\n") : "";
+    }
+
+    function deriveState(title) {
+      return STRUCTURED_RE.test(title || "") ? "structured" : "";
     }
 
     function formatRelativeTime(ts) {
@@ -178,12 +188,19 @@
       const article = document.createElement('article');
       article.className = 'item';
       article.dataset.id = item.id;
+      const state = deriveState(item.title);
+      if (state) article.dataset.state = state;
+      else delete article.dataset.state;
+      const signal = document.createElement("div");
+      signal.className = "signal";
+      signal.textContent = state === "structured" ? "● STRUCTURE FORMING" : "";
       const headline = document.createElement("div");
       headline.className = "headline";
       headline.textContent = item.title || "";
       const meta = document.createElement("div");
       meta.className = "meta";
       meta.textContent = formatRelativeTime(item.ts);
+      article.appendChild(signal);
       article.appendChild(headline);
       article.appendChild(meta);
       if (entering && !reduceMotion) {
@@ -211,6 +228,10 @@
           const entering = !firstRender && !previousFeedIds.includes(id);
           node = createItem(item, entering);
         } else {
+          const state = deriveState(item.title);
+          if (state) node.dataset.state = state; else delete node.dataset.state;
+          const signalEl = node.querySelector('.signal');
+          if (signalEl) signalEl.textContent = state === "structured" ? "● STRUCTURE FORMING" : "";
           const textEl = node.querySelector('.headline');
           if (textEl && textEl.textContent !== (item.title || '')) textEl.textContent = item.title || '';
           const metaEl = node.querySelector('.meta');
