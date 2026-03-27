@@ -21,7 +21,6 @@
     .item{padding:16px 0 18px;border-bottom:1px solid transparent;transform-origin:center center;opacity:1;transform:translate3d(0,0,0) scale(1)}
     .item + .item{margin-top:2px}
     .item:first-child{padding-top:22px;padding-bottom:42px;margin-bottom:16px;border-bottom-color:rgba(255,255,255,.018)}
-    .item:first-child::before{content:"● 尚未完全定价";display:block;margin:0 0 12px;font-size:clamp(11px,.9vw,13px);line-height:1.1;font-weight:540;letter-spacing:.08em;color:rgba(247,247,242,.44)}
     .item:nth-child(2){padding-top:24px;padding-bottom:28px;margin-bottom:14px;border-bottom-color:rgba(255,255,255,.014)}
     .item:nth-child(n+3):nth-child(-n+6){padding-top:10px;padding-bottom:10px}
     .item:nth-child(n+7){padding-top:11px;padding-bottom:13px}
@@ -58,7 +57,6 @@
       .item:first-child .meta{color:rgba(247,247,242,.52)}
       .item:nth-child(2) .meta{color:rgba(247,247,242,.5)}
       .item:nth-child(n+7) .meta{color:rgba(247,247,242,.41)}
-      .item:first-child::before{margin:0 0 10px;font-size:12px;color:rgba(247,247,242,.46)}
     }
     @media (pointer: coarse) and (min-width: 820px) and (orientation: portrait){
       .app{padding:18px 44px 32px}
@@ -76,7 +74,6 @@
       .item:first-child .meta{color:rgba(247,247,242,.52)}
       .item:nth-child(2) .meta{color:rgba(247,247,242,.5)}
       .item:nth-child(n+7) .meta{color:rgba(247,247,242,.41)}
-      .item:first-child::before{margin:0 0 10px;font-size:12px;color:rgba(247,247,242,.45)}
     }
     @media (max-width: 900px){
       .app{padding:12px 26px 28px}
@@ -91,7 +88,6 @@
       .item:nth-child(n+3):nth-child(-n+6) .headline{max-width:100%;font-size:clamp(25px,6.9vw,41px);line-height:1.18;font-weight:520;color:rgba(247,247,242,.83)}
       .item:nth-child(n+7) .headline{max-width:100%;font-size:clamp(22px,6.32vw,36px);line-height:1.19;font-weight:500;color:rgba(247,247,242,.79)}
       .meta{margin-top:6px;font-size:12px;color:rgba(247,247,242,.44)}
-      .item:first-child::before{margin:0 0 8px;font-size:11px;letter-spacing:.07em;color:rgba(247,247,242,.42)}
       .mask{height:8vh}
     }
     @media (prefers-reduced-motion: reduce){
