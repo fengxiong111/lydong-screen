@@ -37,6 +37,27 @@
     .empty{padding:48px 0;color:#777;font-size:24px}
     .mask{position:fixed;left:0;right:0;height:12vh;pointer-events:none;z-index:5}
     .mask-bottom{bottom:0;background:linear-gradient(0deg,rgba(2,2,2,.36) 0%,rgba(2,2,2,.18) 34%,rgba(2,2,2,.08) 64%,rgba(2,2,2,0) 100%)}
+    @media (min-width: 2200px) and (pointer: fine){
+      .app{width:min(100vw,3040px);padding:42px 188px 56px}
+      .item{padding:14px 0 16px}
+      .item + .item{margin-top:1px}
+      .item:first-child{padding-top:30px;padding-bottom:64px;margin-bottom:26px;border-bottom-color:rgba(255,255,255,.014)}
+      .item:nth-child(2){padding-top:30px;padding-bottom:34px;margin-bottom:20px;border-bottom-color:rgba(255,255,255,.01)}
+      .item:nth-child(n+3):nth-child(-n+6){padding-top:11px;padding-bottom:11px}
+      .item:nth-child(n+7){padding-top:12px;padding-bottom:13px}
+      .headline{max-width:29.2ch;font-size:clamp(31px,2.36vw,52px);line-height:1.19;font-weight:505;color:rgba(247,247,242,.78)}
+      .item:first-child .headline{max-width:24.8ch;font-size:clamp(52px,3.88vw,88px);line-height:1.07;font-weight:610;letter-spacing:-.026em;color:rgba(247,247,242,.965)}
+      .item:nth-child(2) .headline{max-width:26.6ch;font-size:clamp(39px,3.02vw,65px);line-height:1.12;font-weight:552;letter-spacing:-.02em;color:rgba(247,247,242,.905)}
+      .item:nth-child(n+3):nth-child(-n+6) .headline{max-width:28.2ch;font-size:clamp(31px,2.42vw,50px);line-height:1.17;font-weight:515;color:rgba(247,247,242,.845)}
+      .item:nth-child(3) .headline{max-width:27.7ch;color:rgba(247,247,242,.865)}
+      .item:nth-child(4) .headline,.item:nth-child(5) .headline,.item:nth-child(6) .headline{color:rgba(247,247,242,.835)}
+      .item:nth-child(n+7) .headline{max-width:28.6ch;font-size:clamp(28px,2.18vw,45px);line-height:1.19;font-weight:500;color:rgba(247,247,242,.79)}
+      .meta{margin-top:9px;font-size:clamp(13px,.78vw,15px);line-height:1.2;font-weight:475;color:rgba(247,247,242,.47)}
+      .item:first-child .meta{color:rgba(247,247,242,.49)}
+      .item:nth-child(2) .meta{color:rgba(247,247,242,.48)}
+      .item:nth-child(n+7) .meta{color:rgba(247,247,242,.4)}
+      .mask-bottom{background:linear-gradient(0deg,rgba(2,2,2,.32) 0%,rgba(2,2,2,.16) 32%,rgba(2,2,2,.07) 62%,rgba(2,2,2,0) 100%)}
+    }
     @media (max-width: 1024px){
       .mobile .mask{display:none}
       .mobile .item,.mobile .headline{transition:none !important}
