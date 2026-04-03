@@ -14,8 +14,10 @@
     .scroll-layer{will-change:transform}
     html.mobile, html.mobile body{height:auto;overflow-x:hidden;overflow-y:auto;-webkit-overflow-scrolling:touch}
     html.mobile body{min-height:100vh}
-    .mobile .viewport{position:relative;inset:auto;overflow:visible;min-height:100vh}
-    .mobile .scroll-layer{will-change:auto;transform:none !important}
+    .mobile .viewport{position:relative;inset:auto;overflow-x:clip;overflow-y:visible;min-height:100vh;max-width:100vw}
+    .mobile .scroll-layer{will-change:auto;transform:none !important;max-width:100%}
+    .mobile .app,.mobile .feed,.mobile .item{max-width:100%;min-width:0}
+    .mobile .headline{max-width:100%;min-width:0;overflow-wrap:anywhere;word-break:break-word}
     .app{width:min(100vw,2620px);margin:0 auto;padding:34px 104px 42px}
     .feed{padding-top:0}
     .item{padding:16px 0 18px;border-bottom:1px solid transparent;transform-origin:center center;opacity:1;transform:translate3d(0,0,0) scale(1)}
