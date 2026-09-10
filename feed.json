@@ -1,7 +1,19 @@
 [
   {
+    "id": "20260910-1022-anthropic",
+    "title": "David Sacks要求暂停Anthropic IPO，直至前研究员“内部告密者”指控完成调查",
+    "ts": "2026-09-10T10:22:00+08:00",
+    "url": "https://tw.theblockbeats.news/newsflash/"
+  },
+  {
+    "id": "20260910-1015-trump-dividend",
+    "title": "特朗普称若共和党赢得参众两院，将向美国每位成年人发放5000美元红利",
+    "ts": "2026-09-10T10:15:00+08:00",
+    "url": "https://tw.theblockbeats.news/newsflash/"
+  },
+  {
     "id": "20260910-1013-pons",
-    "title": "PONS单日收入已达134万美元，年化约2.02亿美元，回购钱包仍有370万美元待买入",
+    "title": "PONS单日收入达134万美元，年化约2.02亿美元，回购钱包仍有370万美元待买入",
     "ts": "2026-09-10T10:13:00+08:00",
     "url": "https://tw.theblockbeats.news/newsflash/"
   },
@@ -24,12 +36,6 @@
     "url": "https://en.theblockbeats.news/flash/366284"
   },
   {
-    "id": "20260910-0931-laptop",
-    "title": "LAPTOP交易员补仓后仍浮亏92%约22.7万美元，价格已从其9.8美元均价跌至约0.8美元",
-    "ts": "2026-09-10T09:31:00+08:00",
-    "url": "https://tw.theblockbeats.news/newsflash/"
-  },
-  {
     "id": "20260910-0926-quantum",
     "title": "美国落地3亿美元量子硬件投资，BTC与ETH均把2029年前后视为抗量子迁移关键窗口",
     "ts": "2026-09-10T09:26:00+08:00",
@@ -39,12 +45,6 @@
     "id": "20260910-0916-pons-short",
     "title": "PONS最大空头Loracle转为浮盈66万美元，但其HYPE、SNDK等主要空单仍合计浮亏约1620万美元",
     "ts": "2026-09-10T09:16:00+08:00",
-    "url": "https://tw.theblockbeats.news/newsflash/"
-  },
-  {
-    "id": "20260910-0914-laptop-liquidity",
-    "title": "LAPTOP将向Aerodrome投入400万枚激励流动性，并销毁1000万枚、约占总供应1%",
-    "ts": "2026-09-10T09:14:00+08:00",
     "url": "https://tw.theblockbeats.news/newsflash/"
   }
 ]
